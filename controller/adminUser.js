@@ -75,4 +75,27 @@ router.post('/login',async (req,res,next)=>{//登录模块
    }
 })
 
+router.get('/',auth,async (req, res, next)=>{
+  try{
+    let {page = 1, page_size = 10} = req.query
+    page = parseInt(page)
+    page_size = parseInt(page_size)
+
+    const dataList = await adminUserModel
+          .find()
+          .skip((page-1)*page_size)
+          .limit(page_size)
+          .sort({_id:-1})
+          .select('-password')
+    res.json({
+      code:200,
+      msg:'获取管理员成功',
+      data:dataList,
+      
+    })
+  }catch(err){
+    next(err)
+  }
+})
+
 module.exports = router
