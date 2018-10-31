@@ -1,57 +1,48 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('./auth');
-const newsModel = require('../model/news')
-
-
-router.post('/',auth, async(req, res, next) => {
+const swiperModel = require('../model/swiper')
+ 
+router.post('/', auth, async(req, res, next) => {
     try{
         let{
             title,
-            content,
-            contentText,
             img,
-            author,
-            type,
+            newsId,
+            status,
+            sort,
         } = req.body;
 
-        const news = await newsModel.create({
+        const swipers = await swiperModel.create({
             title,
-            content,
-            contentText,
             img,
-            author,
-            type,
+            newsId,
+            status,
+            sort,
         })
 
         res.json({
             code:200,
-            data:news,
-            msg:'新闻添加成功'
+            msg:'轮播图创建成功',
+            data:swipers
         })
     }catch(err){
         next(err)
     }
 })
 
-router.get('/',async (req, res, next) => {
+router.get('/', async(req, res, next) => {
     try{
         let {page = 1, page_size = 10} = req.query
         page = parseInt(page)
         page_size = parseInt(page_size)
-        
-        const dataList = await newsModel
+
+        const dataList = await swiperModel
             .find()
             .skip((page-1)*page_size)
             .limit(page_size)
+            .populate({path:'newsId'})
             .sort({_id:-1})
-            .populate({
-                path:'author',
-                select:"-password"
-            })
-            .populate({
-                path:'type'
-            })
 
             res.json({
                 code:200,
@@ -63,28 +54,22 @@ router.get('/',async (req, res, next) => {
     }
 })
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', async(req, res, next) => {
     try{
         const {id} = req.params
-        const data = await newsModel
+        const dataList = await swiperModel
             .findById(id)
-            .populate({
-                path:'admin_user',
-                select:"-password"
-            })
-            .populate({
-                path:'category'
-            })
-
+            
             res.json({
                 code:200,
-                data:data,
+                data:dataList,
                 msg:'success'
             })
     }catch(err){
         next(err)
     }
 })
+
 
 
 module.exports = router;
