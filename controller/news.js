@@ -36,10 +36,10 @@ router.post('/',auth, async(req, res, next) => {
 
 router.get('/',async (req, res, next) => {
     try{
-        let {page = 1, page_size = 10} = req.query
+        let {page = 1, page_size = 5} = req.query
         page = parseInt(page)
         page_size = parseInt(page_size)
-        
+        let count = await newsModel.count()
         const dataList = await newsModel
             .find()
             .skip((page-1)*page_size)
@@ -56,6 +56,7 @@ router.get('/',async (req, res, next) => {
             res.json({
                 code:200,
                 data:dataList,
+                count,
                 msg:'success'
             })
     }catch(err){
@@ -66,7 +67,7 @@ router.get('/',async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
     try{
         const {id} = req.params
-        const data = await newsModel
+        const dataList = await newsModel
             .findById(id)
             .populate({
                 path:'admin_user',
@@ -78,9 +79,22 @@ router.get('/:id', async (req, res, next) => {
 
             res.json({
                 code:200,
-                data:data,
+                data:dataList,
                 msg:'success'
             })
+    }catch(err){
+        next(err)
+    }
+})
+
+router.delete('/:id', async (req, res, next) => {
+    try{
+        const {id} = req.params
+        await newsModel.deleteOne({_id:id})
+        res.json({
+            code:200,
+            msg:'删除成功'
+        })
     }catch(err){
         next(err)
     }

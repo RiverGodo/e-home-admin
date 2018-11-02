@@ -8,7 +8,7 @@ const swiper = new mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'news'
     },
-    status:{//是否排序
+    status:{//是否显示
         type:Number,
         default:1
     },
